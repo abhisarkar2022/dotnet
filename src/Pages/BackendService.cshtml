@@ -1,0 +1,17 @@
+﻿@page
+@model dotnet_helloworld.Pages.BackendServiceModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Invoke";
+}
+<h5>@ViewData["Title"]</h5>
+
+@*<h8 class="text-center">Environment - <mark>@Configuration["AppConfig:BackendServiceUrl"]</mark></h8>
+<br />*@
+<p>Invokes a remote endpoint: <mark>@ViewData["BackendUrl"]</mark>
+    <br />
+    <i>Notice that the endpoint is different for prod & dev AppConfig. The appconfig referenced is @Configuration["AppConfig:AppSettings"]</i>
+</p>
+
+<h6><u>The response from the backend service is shown below:</u></h6>
+<p>@Model.ApiResponse</p>

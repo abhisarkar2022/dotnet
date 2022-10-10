@@ -1,0 +1,106 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+stages:
+# Build stage
+- stage: Build
+  jobs:
+  - job: Build
+
+    pool:
+      vmImage: ubuntu-latest
+
+    variables:
+      buildConfiguration: 'Release'
+
+    steps:
+
+    # install 6.0.x SDK
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core SDK'
+      inputs:
+        version: '6.0.x'
+
+    # restore dependencies
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: 'restore'
+        projects: 'src/*.csproj'
+
+    # build the dotnet app inside the folder src
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        projects: 'src/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+        
+    # Publish artifacts & create a zip file as output for deployment
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: True
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: True        
+
+    # Publish the zip build artifacts to be made available for download in the deploy
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+# Manual validation      
+- stage: ManualValidation
+  jobs:
+  - job: ManualValidation
+    displayName: Wait for external validation
+    pool: server   
+    timeoutInMinutes: 4320 # job times out in 3 days  
+
+    steps:
+    # Initiate approval process
+    - task: ManualValidation@0
+      timeoutInMinutes: 4320 # task times out in 3 days
+      inputs:
+          notifyUsers: |
+              user@email.com
+          instructions: 'Please validate the build configuration and take appropriate action'
+          onTimeout: 'reject'
+
+# Deploy stage       
+- stage: Deploy
+  jobs:
+  - deployment: DeployWeb
+    displayName: deploy Web App
+    pool:
+      vmImage: ubuntu-latest    
+    environment: azure-webapp-prod  # Create the environment using UI on the Azure DevOps first
+    strategy:
+      runOnce:
+        deploy:
+          steps:    
+
+          # Download build artifacts from the build location
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              downloadPath: '$(System.ArtifactsDirectory)'
+              artifactName: 'drop'
+              
+          # Deploy the code to Azure Web App
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: '*************'
+              appType: 'webAppLinux'
+              WebAppName: 'wa-abhi-dev'
+              packageForLinux: '$(System.ArtifactsDirectory)/drop/*.zip'
+              RuntimeStack: 'DOTNETCORE|6.0'
