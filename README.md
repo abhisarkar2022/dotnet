@@ -28,9 +28,9 @@ dotnet run
 ## Dockerize the application.
 ```bash
 # Build the docker image
-docker build -t dotnetapp:v1.0.0 .
+docker build -t dotnetapp .
 # Run the docker container locally
-docker run --name dotnetapp-container -d -p 8002:80 dotnetapp:v1.0.0
+docker run --name dotnetapp-container -d -p 8002:80 dotnetapp
 # Test the app
 curl http://localhost:8002
 # log into the running container 
@@ -39,7 +39,7 @@ docker exec -it <container-name> <command>
 # Remove the container
 docker rm dotnetapp-container -f 
 # Remove the image
-docker rmi dotnetapp:v1.0.0
+docker rmi dotnetapp
 ```
 
 ## Push the image to container registry
@@ -48,10 +48,10 @@ docker rmi dotnetapp:v1.0.0
 docker login
 # Tag the local image & map it to the docker repo
 docker tag local-image:tagname new-repo:tagname
-# eg: docker tag dotnetapp:v1.0.0 abhinabsarkar/dotnetapp:v1.0.0
+# eg: docker tag dotnetapp abhinabsarkar/dotnetapp
 # push the tagged image to the docker hub
 docker push new-repo:tagname
-# eg: docker push abhinabsarkar/dotnetapp:v1.0.0
+# eg: docker push abhinabsarkar/dotnetapp
 ```
 
 ## Azure pipeline yaml
