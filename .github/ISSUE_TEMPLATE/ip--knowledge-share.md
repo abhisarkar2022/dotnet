@@ -1,8 +1,8 @@
 ---
-name: IP- Knowledge Share
+name: IP-Knowledge Share
 about: Document the learnings which you want to share with other CSAs
 title: ''
-labels: IP- Knowledge Share
+labels: IP-Knowledge Share
 assignees: ''
 
 ---
@@ -10,6 +10,6 @@ assignees: ''
 Create new issue
 	1. Give a title & description
 	2. Assign it to yourself
-	3. Set the label as IP- Knowledge Share
-	4. Click Submit new issue
-Provide the resolution in the comments with details. Close the issue.
+	3. Click Submit new issue
+	4. Describe the issue & resolution in the comments with details. 
+	5. Close the issue.
